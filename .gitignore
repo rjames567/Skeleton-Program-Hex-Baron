@@ -133,3 +133,5 @@ poetry.lock
 pyproject.toml
 replit.nix
 venv/
+.breakpoints
+.replit
