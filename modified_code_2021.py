@@ -44,6 +44,21 @@ class Piece:
 	def DestroyPiece(self):
 		self._Destroyed = True
 
+class RangerPiece(Piece):
+	def __init__(self, Player1):
+		super(RangerPiece, self).__init__(Player1)
+		self._PieceType = "R"
+	
+	def CheckMoveIsValid(self, DistanceBetweenTiles, StartTerrain, EndTerrain):
+		if StartTerrain == "#" and EndTerrain == "#":
+			return self._FuelCostOfMove
+		elif DistanceBetweenTiles == 1:
+			if StartTerrain == "~" or EndTerrain == "~":
+				return self._FuelCostOfMove * 2
+			else:
+				return self._FuelCostOfMove
+		return -1
+
 class BaronPiece(Piece):
 	def __init__(self, Player1):
 		super(BaronPiece, self).__init__(Player1)
@@ -154,6 +169,8 @@ class HexGrid:
 			NewPiece = LESSPiece(BelongsToPlayer1)
 		elif TypeOfPiece == "PBDS":
 			NewPiece = PBDSPiece(BelongsToPlayer1)
+		elif TypeOfPiece == "Ranger":
+			NewPiece = RangerPiece(BelongsToPlayer1)
 		else:
 			NewPiece = Piece(BelongsToPlayer1)
 		self._Pieces.append(NewPiece)
@@ -491,7 +508,7 @@ def SetUpDefaultGame():
 	Player2 = Player("Player Two", 1, 10, 10, 5)
 	Grid.SetUpGridTerrain(T)
 	Grid.AddPiece(True, "Baron", 0)
-	Grid.AddPiece(True, "Serf", 8)
+	Grid.AddPiece(True, "Ranger", 8)
 	Grid.AddPiece(False, "Baron", 31)
 	Grid.AddPiece(False, "Serf", 23)
 	return Player1, Player2, Grid
