@@ -322,6 +322,11 @@ class HexGrid:
 						Player2VPs += ThePiece.GetVPs()
 					else:
 						Player1VPs += ThePiece.GetVPs()
+				elif ThePiece.GetPieceType().upper() == "L":
+					if ThePiece.GetBelongsToPlayer1():
+						Player1VPs += 1
+					else:
+						Player2VPs += 1
 		for T in ListOfTilesContainingDestroyedPieces:
 			T.SetPiece(None)
 		return BaronDestroyed, Player1VPs, Player2VPs
