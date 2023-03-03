@@ -200,6 +200,12 @@ class HexGrid:
 			if LumberCost < 0:
 				return "Upgrade not possible", FuelChange, LumberChange, SupplyChange
 			LumberChange = -LumberCost
+		elif Items[0] == "burn":
+			if LumberAvailable > 0:
+				FuelChange = random.randint(1, LumberAvailable)
+				LumberChange = -FuelChange
+			else:
+				return "Cannot burn lumber", FuelChange, LumberChange, SupplyChange 
 		return "Command executed", FuelChange, LumberChange, SupplyChange
 
 	def __CheckTileIndexIsValid(self, TileToCheck):
@@ -551,6 +557,8 @@ def CheckCommandIsValid(Items):
 			return CheckStandardCommandFormat(Items)
 		elif Items[0] == "upgrade":
 			return CheckUpgradeCommandFormat(Items)
+		elif Items[0] == "burn" and len(Items) == 1: # burn command does not take parameters, so must Items must be length 1, must be indented, otherwise cannot run
+			return True # Only needs to return True, as it is has correct command, and is only the command
 	return False
 
 def PlayGame(Player1, Player2, Grid):
