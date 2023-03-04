@@ -158,6 +158,20 @@ class HexGrid:
 		self.__SetUpTiles()
 		self.__SetUpNeighbours()
 
+	def GetFogOfWar(self, TileIndex):
+		Tile = self._Tiles[TileIndex]
+		Locations = []
+		for i in Tile.GetNeighbours():
+			Locations.append(i)
+			for k in i.GetNeighbours():
+				Locations.append(k)
+		for i in Locations:
+			Piece = i.GetPieceInTile()
+			if Piece is not None:
+				if Piece.GetBelongsToPlayer1() == self._Player1Turn:
+					return False
+		return True
+		
 	def SetUpGridTerrain(self, ListOfTerrain):
 		for Count in range (0, len(ListOfTerrain)):
 			self._Tiles[Count].SetTerrain(ListOfTerrain[Count])
@@ -373,7 +387,7 @@ class HexGrid:
 
 	def GetPieceTypeInTile(self, ID):
 		ThePiece = self._Tiles[ID].GetPieceInTile()
-		if ThePiece is None:
+		if (ThePiece is None) or self.GetFogOfWar(ID):
 			return " "
 		else:
 			return ThePiece.GetPieceType()
