@@ -160,15 +160,11 @@ class HexGrid:
 
 	def GetFogOfWar(self, TileIndex):
 		Tile = self._Tiles[TileIndex]
-		Locations = []
-		for i in Tile.GetNeighbours():
-			Locations.append(i)
-			for k in i.GetNeighbours():
-				Locations.append(k)
-		for i in Locations:
-			Piece = i.GetPieceInTile()
-			if Piece is not None:
-				if Piece.GetBelongsToPlayer1() == self._Player1Turn:
+		if Tile.GetPieceInTile().GetBelongsToPlayer1() == self._Player1Turn:
+			return False
+		for t in self._Tiles[:TileIndex] + self._Tiles[TileIndex+1:]:
+			if t.GetPieceInTile() is not None:
+				if (t.GetDistanceToTileT(Tile) <= 2) and t.GetPieceInTile().GetBelongsToPlayer1() == self._Player1Turn:
 					return False
 		return True
 		
