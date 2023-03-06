@@ -356,7 +356,7 @@ class HexGrid:
 		y = abs(self._Tiles[self.__ListPositionOfTile].Gety()) - 1
 		Index = (self._Size // 2) + ((self._Size // 2) * y)
 		for count in range (1, self._Size // 2 + 1):
-			Line += f" \\\033[4m{Spacing(Index + (count-1))}\033[0m/ "
+			Line += f" \\\033[4m{Spacing(Index + (count-1))}\033[0m/ " # Using escape codes for underlienes so numbers can be put at the bottom of the tile
 		return Line + os.linesep
 
 	def __CreateTopLine(self):
@@ -388,7 +388,6 @@ class HexGrid:
 
 	def __CreateEvenLine(self, FirstEvenLine):
 		y = abs(self._Tiles[self.__ListPositionOfTile].Gety()) - 1
-		print(y)
 		Spacing = lambda Index: str(Index) + " " if len(str(Index)) == 1 else Index
 		Index = (self._Size // 2) + ((self._Size // 2) * 2 * y)
 		Line = " /" + self._Tiles[self.__ListPositionOfTile].GetTerrain()
