@@ -183,8 +183,51 @@ class HexGrid:
 			if LumberCost < 0:
 				return "Upgrade not possible", FuelChange, LumberChange, SupplyChange
 			LumberChange = -LumberCost
+		elif Items[0] == "help":
+			self.__ExecuteHelpCommand(Items)			
 		return "Command executed", FuelChange, LumberChange, SupplyChange
 
+	def __ExecuteHelpCommand(self, Items):
+		if len(Items) == 1:
+			Items.append(True)
+		print('\n')
+		if Items[1] == "move" or type(Items[1]) == bool:
+			print("The move command:")
+			print("\t\tMoves a piece from one starting tile to another adjacent tile")
+			print("\t\tA baron can move 1 sqare in any direction and it costs 1 fuel for any move")
+			print("\t\tA Serf can move to any adjacent square, which costs one fuel unless it is moving into or out of a peat bog, where it costs two fuel")
+			print("\t\tA PBDS moves like a Serf, except it cannot move from a peat bog tile.")
+			print("\t\tA Less moves like a Serf, except it cannot move from a forest tile.")
+			print("\n\t\tmove <StartIndex> <EndIndex>\n\n")
+		if Items[1] == "saw" or type(Items[1]) == bool:
+			print("The saw command:")
+			print("\t\tCan only be performed on a LESS piece that is in a forest tile.")
+			print("\t\tIncreases the Lumber supply by one")
+			print("\n\t\tsaw <TargetIndex>\n\n")
+		if Items[1] == "dig" or type(Items[1]) == bool:
+			print("The dig command: ")
+			print("\t\tCan only be performed on a PBDS piece that is in a peat bog tile")
+			print("\t\tIncreases the Fuel supply randomly between 1 and 5")
+			print("\n\t\tdig <TargetIndex>\n\n")
+		if Items[1] == "spawn" or type(Items[1]) == bool:
+			print("The spawn command: ")
+			print("\t\tSpawns a new piece on the board, in the tile specified")
+			print("\t\tThe spawn index must be adjacent to the Baron piece")
+			print("\t\tCreates a new Serf piece in the specified tile")
+			print("\t\tDecreases the available Piece supply by 1, and uses 3 Lumber")
+			print("\n\t\tSpawn <TargetIndex>\n\n")
+		if Items[1] == "upgrade" or type(Items[1]) == bool:
+			print("The upgrade command:")
+			print("\t\tUpgrades a specified piece to either a LESS or PBDS piece")
+			print("\t\tCosts 5 lumber to perform")
+			print("\n\t\tupgrade <PieceType> <TargetIndex>\n\n")
+		if Items[1] == "help" or type(Items[1]) == bool:
+			print("The help command:")
+			print("\t\tProvides information about the available commands")
+			print("\t\tSecond option can be left blank for all commands or specified for particular command")
+			print("\t\tDoes not use the commands on the turn used")
+			print("\n\t\thelp <CommandType>")
+	
 	def __CheckTileIndexIsValid(self, TileToCheck):
 		return TileToCheck >= 0 and TileToCheck < len(self._Tiles)
 
@@ -542,6 +585,8 @@ def CheckCommandIsValid(Items):
 			return CheckStandardCommandFormat(Items)
 		elif Items[0] == "upgrade":
 			return CheckUpgradeCommandFormat(Items)
+		elif (Items[0] == "help") and (1 <= len(Items) <= 2):
+			return True
 	return False
 
 def PlayGame(Player1, Player2, Grid):
@@ -556,11 +601,20 @@ def PlayGame(Player1, Player2, Grid):
 			print(Player1.GetName() + " state your three commands, pressing enter after each one.")
 		else:
 			print(Player2.GetName() + " state your three commands, pressing enter after each one.")
-		for Count in range (1, 4):
-			Commands.append(input("Enter command: ").lower())
+		RemainingCommands = 3
+		while RemainingCommands > 0:
+			LastCommand = input("Enter command: ").lower().split()
+			if len(LastCommand) > 0:
+				if LastCommand[0] == "help":
+					Grid.ExecuteCommand(LastCommand, 0, 0, 0)
+				else:
+					Commands.append(LastCommand)
+					RemainingCommands -= 1
+			else:
+				Commands.append(LastCommand)
+				RemainingCommands -= 1
 		for C in Commands:
-			Items = C.split(" ")
-			ValidCommand = CheckCommandIsValid(Items)
+			ValidCommand = CheckCommandIsValid(C)
 			if not ValidCommand:
 				print("Invalid command")
 			else:
