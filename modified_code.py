@@ -5,7 +5,7 @@
 
 import random
 import os
-	
+
 class Piece:
 	def __init__(self, Player1):
 		self._FuelCostOfMove = 1
@@ -352,26 +352,33 @@ class HexGrid:
 
 	def __CreateBottomLine(self):
 		Line = "   "
+		Spacing = lambda Index: str(Index) + " " if len(str(Index)) == 1 else Index
+		y = abs(self._Tiles[self.__ListPositionOfTile].Gety()) - 1
+		Index = (self._Size // 2) + ((self._Size // 2) * y)
 		for count in range (1, self._Size // 2 + 1):
-			Line += " \\__/ "
+			Line += f" \\\033[4m{Spacing(Index + (count-1))}\033[0m/ "
 		return Line + os.linesep
 
 	def __CreateTopLine(self):
 		Line = os.linesep + "  "
 		for count in range (1, self._Size // 2 + 1):
-			Line += "__    "
+			Line += "\033[4m  \033[0m    "
 		return Line + os.linesep
 
 	def __CreateOddLine(self):
 		Line = ""
+		y = abs(self._Tiles[self.__ListPositionOfTile].Gety()) - 1
+		Spacing = lambda Index: str(Index) + " " if len(str(Index)) == 1 else Index
 		for count in range (1, self._Size // 2 + 1):
+			x = abs(self._Tiles[self.__ListPositionOfTile].Getx())
+			Index = (x // 2 + 1 ) + ((self._Size // 2) * y * 2)
 			if count > 1 and count < self._Size // 2:
-				Line += self.GetPieceTypeInTile(self.__ListPositionOfTile) + "\\__/"
+				Line += self.GetPieceTypeInTile(self.__ListPositionOfTile) + f"\\\033[4m{Spacing(Index)}\033[0m/"
 				self.__ListPositionOfTile += 1
 				Line += self._Tiles[self.__ListPositionOfTile].GetTerrain()
 			elif count == 1:
-				Line += " \\__/" + self._Tiles[self.__ListPositionOfTile].GetTerrain()
-		Line += self.GetPieceTypeInTile(self.__ListPositionOfTile) + "\\__/"
+				Line += f" \\\033[4m{Spacing(Index-1)}\033[0m/" + self._Tiles[self.__ListPositionOfTile].GetTerrain()
+		Line += self.GetPieceTypeInTile(self.__ListPositionOfTile) + f"\\\033[4m{Spacing(Index)}\033[0m/"
 		self.__ListPositionOfTile += 1
 		if self.__ListPositionOfTile < len(self._Tiles):
 			Line += self._Tiles[self.__ListPositionOfTile].GetTerrain() + self.GetPieceTypeInTile(self.__ListPositionOfTile) + "\\" + os.linesep
@@ -380,15 +387,22 @@ class HexGrid:
 		return Line
 
 	def __CreateEvenLine(self, FirstEvenLine):
+		y = abs(self._Tiles[self.__ListPositionOfTile].Gety()) - 1
+		print(y)
+		Spacing = lambda Index: str(Index) + " " if len(str(Index)) == 1 else Index
+		Index = (self._Size // 2) + ((self._Size // 2) * 2 * y)
 		Line = " /" + self._Tiles[self.__ListPositionOfTile].GetTerrain()
 		for count in range (1, self._Size // 2):
 			Line += self.GetPieceTypeInTile(self.__ListPositionOfTile)
 			self.__ListPositionOfTile += 1
-			Line += "\\__/" + self._Tiles[self.__ListPositionOfTile].GetTerrain()
+			if not FirstEvenLine:
+				Line += f"\\\033[4m{Spacing(Index + (count-1))}\033[0m/" + self._Tiles[self.__ListPositionOfTile].GetTerrain()
+			else:
+				Line += "\\\033[4m  \033[0m/" + self._Tiles[self.__ListPositionOfTile].GetTerrain()
 		if FirstEvenLine:
-			Line += self.GetPieceTypeInTile(self.__ListPositionOfTile) + "\\__" + os.linesep
+			Line += self.GetPieceTypeInTile(self.__ListPositionOfTile) + "\\\033[4m  \033[0m" + os.linesep
 		else:
-			Line += self.GetPieceTypeInTile(self.__ListPositionOfTile) + "\\__/" + os.linesep
+			Line += self.GetPieceTypeInTile(self.__ListPositionOfTile) + f"\\\033[4m{Spacing(Index + count)}\033[0m/" + os.linesep
 		return Line
 
 class Player:
