@@ -195,8 +195,8 @@ class HexGrid:
 	def __ExecuteHelpCommand(self, Items):
 		if len(Items) == 1:
 			Items.append(True)
-		print('\n')
-		if Items[1] == "move" or type(Items[1]) == bool:
+		print()
+		if Items[1] == "move" or type(Items[1]) == bool: # Runs all options if the second parameter is left blank
 			print("The move command:")
 			print("\t\tMoves a piece from one starting tile to another adjacent tile")
 			print("\t\tA baron can move 1 sqare in any direction and it costs 1 fuel for any move")
