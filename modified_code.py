@@ -226,6 +226,11 @@ class HexGrid:
 			print("\t\tUpgrades a specified piece to either a LESS or PBDS piece")
 			print("\t\tCosts 5 lumber to perform")
 			print("\n\t\tupgrade <PieceType> <TargetIndex>\n\n")
+		if Items[1] == "teleport" or type(Items[1]) == bool:
+			print("The teleport command:")
+			print("\t\tMoves a specified piece to any empty tile in the board")
+			print("\t\tCosts three fuel regardless of the distance")
+			print("\n\t\tteleport <StartIndex> <EndIndex>\n\n")
 		if Items[1] == "help" or type(Items[1]) == bool:
 			print("The help command:")
 			print("\t\tProvides information about the available commands")
