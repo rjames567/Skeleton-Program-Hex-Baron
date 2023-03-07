@@ -501,6 +501,9 @@ def Main():
 			FileLoaded, Player1, Player2, Grid = LoadGame()
 			if FileLoaded:
 				PlayGame(Player1, Player2, Grid)
+		elif Choice == "3":
+			Player1, Player2, Grid = SetUpCustomGame()
+			PlayGame(Player1, Player2, Grid)
 
 def LoadGame():
 	FileName = input("Enter the name of the file to load: ")
@@ -545,6 +548,28 @@ def SetUpDefaultGame():
 	Grid.AddPiece(True, "Serf", 8)
 	Grid.AddPiece(False, "Baron", 31)
 	Grid.AddPiece(False, "Serf", 23)
+	return Player1, Player2, Grid
+
+def SetUpCustomGame():
+	Valid = False
+	while not Valid:
+		GridSize = input("Enter the Grid Size (must be even and between 4 and 14): ")
+		try:
+			GridSize = int(GridSize)
+			if GridSize % 2 != 0 or not(4 <= GridSize <= 14): # Grid sizes of odd numbers can't be done, so it must be even, and the must have at least a gridsize of 4, and is limited to 14, as it breaks the display of the tile index as it is 3 characters long.
+				raise ValueError
+			Valid = True
+		except ValueError:
+			print("Enter a number that is even and between 4 and 14.")
+	T = [random.choice([" ", " ", "#", "~"]) for i in range(((GridSize * (GridSize//2)) - 1))] # choses one of the four options, so 25% of # or ~ and 50% ' '
+	Grid = HexGrid(GridSize)
+	Player1 = Player("Player One", 0, 10, 10, 5)
+	Player2 = Player("Player Two", 1, 10, 10, 5)
+	Grid.SetUpGridTerrain(T)
+	Grid.AddPiece(True, "Baron", 0)
+	Grid.AddPiece(True, "Serf", GridSize)
+	Grid.AddPiece(False, "Baron", ((GridSize * (GridSize//2)) - 1))
+	Grid.AddPiece(False, "Serf", ((GridSize * (GridSize//2)) - 1 - GridSize))
 	return Player1, Player2, Grid
 
 def CheckMoveCommandFormat(Items):
@@ -665,6 +690,7 @@ def DisplayEndMessages(Player1, Player2):
 def DisplayMainMenu():
 	print("1. Default game")
 	print("2. Load game")
+	print("3. Custom game")
 	print("Q. Quit")
 	print()
 	print("Enter your choice: ", end="")
