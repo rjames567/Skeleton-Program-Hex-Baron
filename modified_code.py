@@ -168,6 +168,11 @@ class HexGrid:
 			if FuelCost < 0:
 				return "That move can't be done", FuelChange, LumberChange, SupplyChange
 			FuelChange = -FuelCost
+		elif Items[0] == "teleport":
+			FuelCost = self.__ExecuteTeleportCommand(Items, FuelAvailable)
+			if FuelCost < 0:
+				return "That move can't be done", FuelChange, LumberChange, SupplyChange
+			FuelChange = -FuelCost
 		elif Items[0] in ["saw", "dig"]:
 			Success, FuelChange, LumberChange = self.__ExecuteCommandInTile(Items)
 			if not Success:
@@ -269,6 +274,19 @@ class HexGrid:
 		Distance = self._Tiles[StartID].GetDistanceToTileT(self._Tiles[EndID])
 		FuelCost = ThePiece.CheckMoveIsValid(Distance, self._Tiles[StartID].GetTerrain(), self._Tiles[EndID].GetTerrain())
 		if FuelCost == -1 or FuelAvailable < FuelCost:
+			return -1
+		self.__MovePiece(EndID, StartID)
+		return FuelCost
+
+	def __ExecuteTeleportCommand(self, Items, FuelAvailable): # TODO Teleporrt command
+		StartID = int(Items[1])
+		EndID = int(Items[2])
+		if not self.__CheckPieceAndTileAreValid(StartID) or not self.__CheckTileIndexIsValid(EndID):
+			return -1
+		if self._Tiles[EndID].GetPieceInTile() is not None:
+			return -1
+		FuelCost = 3
+		if FuelAvailable < FuelCost:
 			return -1
 		self.__MovePiece(EndID, StartID)
 		return FuelCost
@@ -604,7 +622,7 @@ def CheckUpgradeCommandFormat(Items):
 
 def CheckCommandIsValid(Items):
 	if len(Items) > 0:
-		if Items[0] == "move":
+		if Items[0] in ["move", "teleport"]:
 			return CheckMoveCommandFormat(Items)
 		elif Items[0] in ["dig", "saw", "spawn"]:
 			return CheckStandardCommandFormat(Items)
@@ -647,13 +665,13 @@ def PlayGame(Player1, Player2, Grid):
 				LumberChange = 0
 				SupplyChange = 0
 				if Player1Turn:
-					SummaryOfResult, FuelChange, LumberChange, SupplyChange = Grid.ExecuteCommand(Items, Player1.GetFuel(), Player1.GetLumber(), Player1.GetPiecesInSupply())
+					SummaryOfResult, FuelChange, LumberChange, SupplyChange = Grid.ExecuteCommand(C, Player1.GetFuel(), Player1.GetLumber(), Player1.GetPiecesInSupply())
 					Player1.UpdateLumber(LumberChange)
 					Player1.UpdateFuel(FuelChange)
 					if SupplyChange == 1:
 						Player1.RemoveTileFromSupply()
 				else:
-					SummaryOfResult, FuelChange, LumberChange, SupplyChange = Grid.ExecuteCommand(Items, Player2.GetFuel(), Player2.GetLumber(), Player2.GetPiecesInSupply())
+					SummaryOfResult, FuelChange, LumberChange, SupplyChange = Grid.ExecuteCommand(C, Player2.GetFuel(), Player2.GetLumber(), Player2.GetPiecesInSupply())
 					Player2.UpdateLumber(LumberChange)
 					Player2.UpdateFuel(FuelChange)
 					if SupplyChange == 1:
