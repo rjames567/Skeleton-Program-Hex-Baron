@@ -95,8 +95,9 @@ class PBDSPiece(Piece):
 			return 5
 
 class Tile:
-	def __init__(self, xcoord, ycoord, zcoord):
+	def __init__(self, xcoord, ycoord, zcoord, Index):
 		self._x = xcoord
+		self._Index = Index
 		self._y = ycoord
 		self._z = zcoord
 		self._Terrain = " "
@@ -105,6 +106,9 @@ class Tile:
 
 	def GetDistanceToTileT(self, T):
 		return max(max(abs(self.Getx() - T.Getx()), abs(self.Gety() - T.Gety())), abs(self.Getz() - T.Getz()))
+
+	def GetIndex(self):
+		return self._Index
 
 	def AddToNeighbours(self, N):
 		self._Neighbours.append(N)
@@ -158,6 +162,30 @@ class HexGrid:
 			NewPiece = Piece(BelongsToPlayer1)
 		self._Pieces.append(NewPiece)
 		self._Tiles[Location].SetPiece(NewPiece)
+
+	def GetGridSize(self):
+		return self._Size
+
+	def GetPiecesList(self):
+		arr = []
+		Switch = {
+			"B": "Baron",
+			"L": "LESS",
+			"S": "Serf",
+			"P": "PBDS"
+		}
+		for tile in self._Tiles:
+			Piece = tile.GetPieceInTile()
+			if Piece is not None:
+				Temp = []
+				Temp.append(1 if Piece.GetBelongsToPlayer1() else 2)
+				Temp.append(Switch[Piece.GetPieceType().upper()])
+				Temp.append(tile.GetIndex())
+				arr.append(Temp)
+		return arr
+
+	def GetTerrainList(self):
+		return [tile.GetTerrain() for tile in self._Tiles]
 
 	def ExecuteCommand(self, Items, FuelAvailable, LumberAvailable, PiecesInSupply):
 		FuelChange = 0
@@ -340,12 +368,14 @@ class HexGrid:
 		EvenStartZ = 0
 		OddStartZ = 0
 		OddStartY = -1
+		TileIndex = 0
 		for count in range (1, self._Size // 2 + 1):
 			y = EvenStartY
 			z = EvenStartZ
 			for x in range (0, self._Size - 1, 2):
-				TempTile = Tile(x, y, z)
+				TempTile = Tile(x, y, z, TileIndex)
 				self._Tiles.append(TempTile)
+				TileIndex += 1
 				y -= 1
 				z -= 1
 			EvenStartZ += 1
@@ -353,8 +383,9 @@ class HexGrid:
 			y = OddStartY
 			z = OddStartZ
 			for x in range (1, self._Size, 2):
-				TempTile = Tile(x, y, z)
+				TempTile = Tile(x, y, z, TileIndex)
 				self._Tiles.append(TempTile)
+				TileIndex += 1
 				y -= 1
 				z -= 1
 			OddStartZ += 1
@@ -455,7 +486,7 @@ class HexGrid:
 	def __CreateEvenLine(self, FirstEvenLine):
 		y = abs(self._Tiles[self.__ListPositionOfTile].Gety()) - 1
 		Spacing = lambda Index: str(Index) + " " if len(str(Index)) == 1 else Index
-		Index = (self._Size // 2) + ((self._Size // 2) * 2 * y)
+		Index = (self._Size // 2) + (self._Size * y)
 		Line = " /" + self._Tiles[self.__ListPositionOfTile].GetTerrain()
 		for count in range (1, self._Size // 2):
 			Line += self.GetPieceTypeInTile(self.__ListPositionOfTile)
@@ -650,17 +681,54 @@ def PlayGame(Player1, Player2, Grid):
 		else:
 			print(Player2.GetName() + " state your three commands, pressing enter after each one.")
 		RemainingCommands = 3
+		Quit = False
 		while RemainingCommands > 0:
 			LastCommand = input("Enter command: ").lower().split()
 			if len(LastCommand) > 0:
 				if LastCommand[0] == "help":
 					Grid.ExecuteCommand(LastCommand, 0, 0, 0)
+				elif LastCommand[0] == "quit":
+					Valid = False
+					while not Valid:
+						print("1. Save and exit")
+						print("2. Do not save and exit")
+						print("3. Cancel")
+						print()
+						Choice = input("Enter your choice: ")
+						if Choice in ["1", "2", "3"]:
+							Valid = True
+					if Choice == "1":
+						Quit = True
+						Valid = False
+						while not Valid:
+							Name = input("Enter the filename: ")
+							try:
+								open(Name, "r")
+								print("That name is taken.")
+							except FileNotFoundError:
+								Valid = True
+						with open(Name, "w+") as f:
+							f.write(f"{Player1.GetName()},{Player1.GetVPs()},{Player1.GetFuel()},{Player1.GetLumber()},{Player1.GetPiecesInSupply()}\n")
+							f.write(f"{Player2.GetName()},{Player2.GetVPs()},{Player2.GetFuel()},{Player2.GetLumber()},{Player2.GetPiecesInSupply()}\n")
+							f.write(f"{Grid.GetGridSize()}\n")
+							Terrain = Grid.GetTerrainList()
+							if Terrain[-1] == " ": # Checks if last element is a field, as for whatever reason, if the last tile is a spaace, the last element is not included
+								f.write(f"{','.join(Terrain[:-1])}\n") # joins all Terrain indexes together with a comma, execpt the last item
+							else:
+								f.write(f"{','.join(Terrain)}\n")
+							f.write("\n".join([','.join([str(i) for i in k]) for k in Grid.GetPiecesList()]))
+						break
+					elif Choice == "2":
+						Quit = True
+						break
 				else:
 					Commands.append(LastCommand)
 					RemainingCommands -= 1
 			else:
 				Commands.append(LastCommand)
 				RemainingCommands -= 1
+		if Quit:
+			break
 		for C in Commands:
 			ValidCommand = CheckCommandIsValid(C)
 			if not ValidCommand:
