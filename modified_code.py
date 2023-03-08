@@ -322,7 +322,7 @@ class HexGrid:
 		self.__MovePiece(EndID, StartID)
 		return FuelCost
 
-	def __ExecuteTeleportCommand(self, Items, FuelAvailable): # TODO Teleporrt command
+	def __ExecuteTeleportCommand(self, Items, FuelAvailable):
 		StartID = int(Items[1])
 		EndID = int(Items[2])
 		if not self.__CheckPieceAndTileAreValid(StartID) or not self.__CheckTileIndexIsValid(EndID):
@@ -775,21 +775,23 @@ def PlayGame(Player1, Player2, Grid):
 						Player2.RemoveTileFromSupply()
 				print(SummaryOfResult)
 		Commands.clear()
-		Player1Turn = not Player1Turn
-		Player1VPsGained = 0
-		Player2VPsGained = 0
-		if GameOver:
-			GameOver, Player1VPsGained, Player2VPsGained = Grid.DestroyPiecesAndCountVPs()
-			GameOver = True
-		else:
-			GameOver, Player1VPsGained, Player2VPsGained = Grid.DestroyPiecesAndCountVPs()
-		Player1.AddToVPs(Player1VPsGained)
-		Player2.AddToVPs(Player2VPsGained)
-		print("Player One current state - " + Player1.GetStateString())
-		print("Player Two current state - " + Player2.GetStateString())
-		input("Press Enter to continue...")
-	print(Grid.GetGridAsString(Player1Turn))
-	DisplayEndMessages(Player1, Player2)
+		if not Quit:
+			Player1Turn = not Player1Turn
+			Player1VPsGained = 0
+			Player2VPsGained = 0
+			if GameOver:
+				GameOver, Player1VPsGained, Player2VPsGained = Grid.DestroyPiecesAndCountVPs()
+				GameOver = True
+			else:
+				GameOver, Player1VPsGained, Player2VPsGained = Grid.DestroyPiecesAndCountVPs()
+			Player1.AddToVPs(Player1VPsGained)
+			Player2.AddToVPs(Player2VPsGained)
+			print("Player One current state - " + Player1.GetStateString())
+			print("Player Two current state - " + Player2.GetStateString())
+			input("Press Enter to continue...")
+		print(Grid.GetGridAsString(Player1Turn))
+		DisplayEndMessages(Player1, Player2)
+	print("Game quitted")
 
 def DisplayEndMessages(Player1, Player2):
 	print()
@@ -812,6 +814,3 @@ def DisplayMainMenu():
 
 if __name__ == "__main__":
 	Main()
-
-# TODO - update the help command
-# TODO - rmeove the victory lines after quitting
