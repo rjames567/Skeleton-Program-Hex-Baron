@@ -668,6 +668,18 @@ def CheckCommandIsValid(Items):
 			return True
 	return False
 
+def SaveGame(Player1, Player2, Grid, FileName):
+	with open(FileName, "w+") as f:
+		f.write(f"{Player1.GetName()},{Player1.GetVPs()},{Player1.GetFuel()},{Player1.GetLumber()},{Player1.GetPiecesInSupply()}\n")
+		f.write(f"{Player2.GetName()},{Player2.GetVPs()},{Player2.GetFuel()},{Player2.GetLumber()},{Player2.GetPiecesInSupply()}\n")
+		f.write(f"{Grid.GetGridSize()}\n")
+		Terrain = Grid.GetTerrainList()
+		if Terrain[-1] == " ": # Checks if last element is a field, as for whatever reason, if the last tile is a spaace, the last element is not included
+			f.write(f"{','.join(Terrain[:-1])}\n") # joins all Terrain indexes together with a comma, execpt the last item
+		else:
+			f.write(f"{','.join(Terrain)}\n")
+		f.write("\n".join([','.join([str(i) for i in k]) for k in Grid.GetPiecesList()]))
+
 def PlayGame(Player1, Player2, Grid):
 	GameOver = False
 	Player1Turn = True
@@ -687,6 +699,16 @@ def PlayGame(Player1, Player2, Grid):
 			if len(LastCommand) > 0:
 				if LastCommand[0] == "help":
 					Grid.ExecuteCommand(LastCommand, 0, 0, 0)
+				elif LastCommand[0] == "save":
+					Valid = False
+					while not Valid:
+						Name = input("Enter the filename: ")
+						try:
+							open(Name, "r")
+							print("That name is taken.")
+						except FileNotFoundError:
+							Valid = True
+					SaveGame(Player1, Player2, Grid, Name)
 				elif LastCommand[0] == "quit":
 					Valid = False
 					while not Valid:
@@ -707,16 +729,7 @@ def PlayGame(Player1, Player2, Grid):
 								print("That name is taken.")
 							except FileNotFoundError:
 								Valid = True
-						with open(Name, "w+") as f:
-							f.write(f"{Player1.GetName()},{Player1.GetVPs()},{Player1.GetFuel()},{Player1.GetLumber()},{Player1.GetPiecesInSupply()}\n")
-							f.write(f"{Player2.GetName()},{Player2.GetVPs()},{Player2.GetFuel()},{Player2.GetLumber()},{Player2.GetPiecesInSupply()}\n")
-							f.write(f"{Grid.GetGridSize()}\n")
-							Terrain = Grid.GetTerrainList()
-							if Terrain[-1] == " ": # Checks if last element is a field, as for whatever reason, if the last tile is a spaace, the last element is not included
-								f.write(f"{','.join(Terrain[:-1])}\n") # joins all Terrain indexes together with a comma, execpt the last item
-							else:
-								f.write(f"{','.join(Terrain)}\n")
-							f.write("\n".join([','.join([str(i) for i in k]) for k in Grid.GetPiecesList()]))
+						SaveGame(Player1, Player2, Grid, Name)
 						break
 					elif Choice == "2":
 						Quit = True
