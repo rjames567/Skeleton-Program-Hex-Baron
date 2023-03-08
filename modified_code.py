@@ -248,7 +248,7 @@ class HexGrid:
 			print("\t\tThe spawn index must be adjacent to the Baron piece")
 			print("\t\tCreates a new Serf piece in the specified tile")
 			print("\t\tDecreases the available Piece supply by 1, and uses 3 Lumber")
-			print("\n\t\tSpawn <TargetIndex>\n\n")
+			print("\n\t\tspawn <TargetIndex>\n\n")
 		if Items[1] == "upgrade" or type(Items[1]) == bool:
 			print("The upgrade command:")
 			print("\t\tUpgrades a specified piece to either a LESS or PBDS piece")
@@ -259,6 +259,17 @@ class HexGrid:
 			print("\t\tMoves a specified piece to any empty tile in the board")
 			print("\t\tCosts three fuel regardless of the distance")
 			print("\n\t\tteleport <StartIndex> <EndIndex>\n\n")
+		if Items[1] == "quit" or type(Items[1]) == bool:
+			print("The quit command:")
+			print("\t\tQuits the game")
+			print("\t\tCan then be used to quit and save the game, cancel or quit without saving")
+			print("\n\t\tquit\n\n")
+		if Items[1] == "save" or type(Items[1]) == bool:
+			print("The save command:")
+			print("\t\tAllows to save the game")
+			print("\t\tDoes not use any of the commands")
+			print("\t\tRequests a file name, and needs .txt file extension")
+			print("\n\t\tsave\n\n")
 		if Items[1] == "help" or type(Items[1]) == bool:
 			print("The help command:")
 			print("\t\tProvides information about the available commands")
@@ -801,3 +812,6 @@ def DisplayMainMenu():
 
 if __name__ == "__main__":
 	Main()
+
+# TODO - update the help command
+# TODO - rmeove the victory lines after quitting
