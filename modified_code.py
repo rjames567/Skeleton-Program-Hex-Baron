@@ -632,7 +632,7 @@ def SetUpCustomGame():
 	T = [random.choice([" ", " ", "#", "~"]) for i in range(((GridSize * (GridSize//2)) - 1))] # choses one of the four options, so 25% of # or ~ and 50% ' '
 	Grid = HexGrid(GridSize)
 	Player1 = Player("Player One", 0, 10, 10, 5)
-	Player2 = Player("Player Two", 1, 10, 10, 5)
+	Player2 = Player("Player Two", 0, 10, 10, 5)
 	Grid.SetUpGridTerrain(T)
 	Grid.AddPiece(True, "Baron", 0)
 	Grid.AddPiece(True, "Serf", GridSize)
