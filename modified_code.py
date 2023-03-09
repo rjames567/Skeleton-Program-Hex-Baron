@@ -561,7 +561,7 @@ def Main():
 	Choice = ""
 	while Choice != "Q":
 		DisplayMainMenu()
-		Choice = input()
+		Choice = input().upper()
 		if Choice == "1":
 			Player1, Player2, Grid = SetUpDefaultGame()
 			PlayGame(Player1, Player2, Grid)
