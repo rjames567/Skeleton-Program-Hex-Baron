@@ -415,13 +415,16 @@ class HexGrid:
 		ListOfTilesContainingDestroyedPieces = []
 		for T in self._Tiles:
 			if T.GetPieceInTile() is not None:
+				ThePiece = T.GetPieceInTile()
 				ListOfNeighbours = T.GetNeighbours()
 				NoOfConnections = 0
+				NoOpponentConnections = 0
 				for N in ListOfNeighbours:
 					if N.GetPieceInTile() is not None:
+						if N.GetPieceInTile().GetBelongsToPlayer1() != ThePiece.GetBelongsToPlayer1():
+							NoOpponentConnections += 1
 						NoOfConnections += 1
-				ThePiece = T.GetPieceInTile()
-				if NoOfConnections >= ThePiece.GetConnectionsNeededToDestroy():
+				if NoOfConnections >= ThePiece.GetConnectionsNeededToDestroy() and NoOpponentConnections >= 1:
 					ThePiece.DestroyPiece()
 					if ThePiece.GetPieceType().upper() == "B":
 						BaronDestroyed = True
