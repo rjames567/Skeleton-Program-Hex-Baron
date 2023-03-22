@@ -276,6 +276,14 @@ class HexGrid:
 			print("\t\tDoes not use any of the commands")
 			print("\t\tRequests a file name, and needs .txt file extension")
 			print("\n\t\tsave\n\n")
+		if (Items[1] == "toggle" and Items[2] == "indexes") or type(Items[1]) == bool:
+			print("The toggle indexes command:")
+			print("\t\It can be difficult to visualise tile indexes")
+			print("\t\tToggles showing the tile indexes on the grid")
+			print("\t\tDoes reduce readability")
+			print("\t\tBy default is off, and is independant for both players")
+			print("\t\tDoes not use commands up, and redisplays the grid when called.")
+			print("\n\t\toggle indexes")
 		if Items[1] == "help" or type(Items[1]) == bool:
 			print("The help command:")
 			print("\t\tProvides information about the available commands")
@@ -445,18 +453,18 @@ class HexGrid:
 			T.SetPiece(None)
 		return BaronDestroyed, Player1VPs, Player2VPs
 
-	def GetGridAsString(self, P1Turn):
+	def GetGridAsString(self, P1Turn, ShowIndexes):
 		self.__ListPositionOfTile = 0
 		self._Player1Turn = P1Turn
-		GridAsString = self.__CreateTopLine() + self.__CreateEvenLine(True)
+		GridAsString = self.__CreateTopLine() + self.__CreateEvenLine(True, ShowIndexes)
 		self.__ListPositionOfTile += 1
-		GridAsString += self.__CreateOddLine()
+		GridAsString += self.__CreateOddLine(ShowIndexes)
 		for count in range(1, self._Size - 1, 2):
 			self.__ListPositionOfTile += 1
-			GridAsString += self.__CreateEvenLine(False)
+			GridAsString += self.__CreateEvenLine(False, ShowIndexes)
 			self.__ListPositionOfTile += 1
-			GridAsString += self.__CreateOddLine()
-		return GridAsString + self.__CreateBottomLine()
+			GridAsString += self.__CreateOddLine(ShowIndexes)
+		return GridAsString + self.__CreateBottomLine(ShowIndexes)
 
 	def __MovePiece(self, NewIndex, OldIndex):
 		self._Tiles[NewIndex].SetPiece(self._Tiles[OldIndex].GetPieceInTile())
@@ -468,14 +476,18 @@ class HexGrid:
 			return " "
 		else:
 			return ThePiece.GetPieceType()
+	
+	def __Spacing(self, Index, ShowIndexes):
+		if ShowIndexes:
+			return str(Index) + " " if len(str(Index)) == 1 else Index
+		return "  "
 
-	def __CreateBottomLine(self):
+	def __CreateBottomLine(self, ShowIndexes):
 		Line = "   "
-		Spacing = lambda Index: str(Index) + " " if len(str(Index)) == 1 else Index
 		y = abs(self._Tiles[self.__ListPositionOfTile].Gety()) - 1
 		Index = (self._Size // 2) + ((self._Size // 2) * y)
 		for count in range(1, self._Size // 2 + 1):
-			Line += f" \\\033[4m{Spacing(Index + (count-1))}\033[0m/ "  # Using escape codes for underlienes so numbers can be put at the bottom of the tile
+			Line += f" \\\033[4m{self.__Spacing((Index + (count - 1)), ShowIndexes)}\033[0m/ "  # Using escape codes for underlienes so numbers can be put at the bottom of the tile
 		return Line + os.linesep
 
 	def __CreateTopLine(self):
@@ -484,21 +496,20 @@ class HexGrid:
 			Line += "\033[4m  \033[0m    "
 		return Line + os.linesep
 
-	def __CreateOddLine(self):
+	def __CreateOddLine(self, ShowIndexes):
 		Line = ""
 		y = abs(self._Tiles[self.__ListPositionOfTile].Gety()) - 1
-		Spacing = lambda Index: str(Index) + " " if len(str(Index)) == 1 else Index
 		for count in range(1, self._Size // 2 + 1):
 			x = abs(self._Tiles[self.__ListPositionOfTile].Getx())
 			Index = (x // 2 + 1) + ((self._Size // 2) * y * 2)
 			if count > 1 and count < self._Size // 2:
-				Line += self.GetPieceTypeInTile(self.__ListPositionOfTile) + f"\\\033[4m{Spacing(Index)}\033[0m/"
+				Line += self.GetPieceTypeInTile(self.__ListPositionOfTile) + f"\\\033[4m{self.__Spacing(Index, ShowIndexes)}\033[0m/"
 				self.__ListPositionOfTile += 1
 				Line += self._Tiles[self.__ListPositionOfTile].GetTerrain()
 			elif count == 1:
-				Line += f" \\\033[4m{Spacing(Index-1)}\033[0m/" + self._Tiles[self.__ListPositionOfTile].GetTerrain()
+				Line += f" \\\033[4m{self.__Spacing((Index - 1), ShowIndexes)}\033[0m/" + self._Tiles[self.__ListPositionOfTile].GetTerrain()
 		Line += self.GetPieceTypeInTile(
-		 self.__ListPositionOfTile) + f"\\\033[4m{Spacing(Index)}\033[0m/"
+		 self.__ListPositionOfTile) + f"\\\033[4m{self.__Spacing(Index, ShowIndexes)}\033[0m/"
 		self.__ListPositionOfTile += 1
 		if self.__ListPositionOfTile < len(self._Tiles):
 			Line += self._Tiles[self.__ListPositionOfTile].GetTerrain() + self.GetPieceTypeInTile(self.__ListPositionOfTile) + "\\" + os.linesep
@@ -506,23 +517,22 @@ class HexGrid:
 			Line += "\\" + os.linesep
 		return Line
 
-	def __CreateEvenLine(self, FirstEvenLine):
+	def __CreateEvenLine(self, FirstEvenLine, ShowIndexes):
 		y = abs(self._Tiles[self.__ListPositionOfTile].Gety()) - 1
-		Spacing = lambda Index: str(Index) + " " if len(str(Index)) == 1 else Index
 		Index = (self._Size // 2) + (self._Size * y)
 		Line = " /" + self._Tiles[self.__ListPositionOfTile].GetTerrain()
 		for count in range(1, self._Size // 2):
 			Line += self.GetPieceTypeInTile(self.__ListPositionOfTile)
 			self.__ListPositionOfTile += 1
 			if not FirstEvenLine:
-				Line += f"\\\033[4m{Spacing(Index + (count-1))}\033[0m/" + self._Tiles[self.__ListPositionOfTile].GetTerrain()
+				Line += f"\\\033[4m{self.__Spacing((Index + (count - 1)), ShowIndexes)}\033[0m/" + self._Tiles[self.__ListPositionOfTile].GetTerrain()
 			else:
 				Line += "\\\033[4m  \033[0m/" + self._Tiles[self.__ListPositionOfTile].GetTerrain()
 		if FirstEvenLine:
 			Line += self.GetPieceTypeInTile(
 			 self.__ListPositionOfTile) + "\\\033[4m  \033[0m" + os.linesep
 		else:
-			Line += self.GetPieceTypeInTile(self.__ListPositionOfTile) + f"\\\033[4m{Spacing(Index + count)}\033[0m/" + os.linesep
+			Line += self.GetPieceTypeInTile(self.__ListPositionOfTile) + f"\\\033[4m{self.__Spacing((Index + count), ShowIndexes)}\033[0m/" + os.linesep
 		return Line
 
 class Player:
@@ -709,10 +719,12 @@ def PlayGame(Player1, Player2, Grid):
 	GameOver = False
 	Player1Turn = True
 	Commands = []
+	ShowIndexes = [False, False] # stores values for both players, index 0 for player 1, and 1 for player 2
+	IndexShown = lambda: ShowIndexes[0] if Player1Turn else ShowIndexes[1]
 	print("Player One current state - " + Player1.GetStateString())
 	print("Player Two current state - " + Player2.GetStateString())
 	while not (GameOver and Player1Turn):
-		print(Grid.GetGridAsString(Player1Turn))
+		print(Grid.GetGridAsString(Player1Turn, IndexShown()))
 		if Player1Turn:
 			print(Player1.GetName() + " state your three commands, pressing enter after each one.")
 		else:
@@ -724,6 +736,16 @@ def PlayGame(Player1, Player2, Grid):
 			if len(LastCommand) > 0:
 				if LastCommand[0] == "help":
 					Grid.ExecuteCommand(LastCommand, 0, 0, 0)
+				elif LastCommand == ["toggle", "indexes"]:
+					if Player1Turn:
+						ShowIndexes[0] = not(IndexShown())
+					else:
+						ShowIndexes[1] = not(IndexShown())
+					print(Grid.GetGridAsString(Player1Turn, IndexShown()))
+					if Player1Turn:
+						print(Player1.GetName() + " state your three commands, pressing enter after each one.")
+					else:
+						print(Player2.GetName() + " state your three commands, pressing enter after each one.")
 				elif LastCommand[0] == "save":
 					Valid = False
 					while not Valid:
@@ -803,20 +825,21 @@ def PlayGame(Player1, Player2, Grid):
 			print("Player One current state - " + Player1.GetStateString())
 			print("Player Two current state - " + Player2.GetStateString())
 			input("Press Enter to continue...")
-		print(Grid.GetGridAsString(Player1Turn))
-		DisplayEndMessages(Player1, Player2)
+		print(Grid.GetGridAsString(Player1Turn, IndexShown()))
+		DisplayEndMessages(Player1, Player2, GameOver)
 	print("Game quitted")
 
-def DisplayEndMessages(Player1, Player2):
+def DisplayEndMessages(Player1, Player2, GameOver):
 	print()
 	print(Player1.GetName() + " final state: " + Player1.GetStateString())
 	print()
 	print(Player2.GetName() + " final state: " + Player2.GetStateString())
 	print()
-	if Player1.GetVPs() > Player2.GetVPs():
-		print(Player1.GetName() + " is the winner!")
-	else:
-		print(Player2.GetName() + " is the winner!")
+	if GameOver:
+		if Player1.GetVPs() > Player2.GetVPs():
+			print(Player1.GetName() + " is the winner!")
+		else:
+			print(Player2.GetName() + " is the winner!")
 
 def DisplayMainMenu():
 	print("1. Default game")
