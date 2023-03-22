@@ -723,7 +723,7 @@ def PlayGame(Player1, Player2, Grid):
 	IndexShown = lambda: ShowIndexes[0] if Player1Turn else ShowIndexes[1]
 	print("Player One current state - " + Player1.GetStateString())
 	print("Player Two current state - " + Player2.GetStateString())
-	while not (GameOver and Player1Turn):
+	while not GameOver:
 		print(Grid.GetGridAsString(Player1Turn, IndexShown()))
 		if Player1Turn:
 			print(Player1.GetName() + " state your three commands, pressing enter after each one.")
