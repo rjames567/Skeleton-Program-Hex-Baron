@@ -249,28 +249,31 @@ class HexGrid:
 		return FuelCost
 
 	def __ExecuteSpawnCommand(self, Items, LumberAvailable, PiecesInSupply):
-		TileToUse = int(Items[1])
-		if PiecesInSupply < 1 or LumberAvailable < 3 or not self.__CheckTileIndexIsValid(
-		  TileToUse):
-			return -1
-		ThePiece = self._Tiles[TileToUse].GetPieceInTile()
-		if ThePiece is not None:
-			return -1
-		OwnBaronIsNeighbour = False
-		ListOfNeighbours = self._Tiles[TileToUse].GetNeighbours()
-		for N in ListOfNeighbours:
-			ThePiece = N.GetPieceInTile()
+		if len([i for i in self._Pieces if i.GetBelongsToPlayer1() == self._Player1Turn]) < 6:
+			TileToUse = int(Items[1])
+			if PiecesInSupply < 1 or LumberAvailable < 3 or not self.__CheckTileIndexIsValid(
+			  TileToUse):
+				return -1
+			ThePiece = self._Tiles[TileToUse].GetPieceInTile()
 			if ThePiece is not None:
-				if self._Player1Turn and ThePiece.GetPieceType(
-				) == "B" or not self._Player1Turn and ThePiece.GetPieceType() == "b":
-					OwnBaronIsNeighbour = True
-					break
-		if not OwnBaronIsNeighbour:
-			return -1
-		NewPiece = Piece(self._Player1Turn)
-		self._Pieces.append(NewPiece)
-		self._Tiles[TileToUse].SetPiece(NewPiece)
-		return 3
+				return -1
+			OwnBaronIsNeighbour = False
+			ListOfNeighbours = self._Tiles[TileToUse].GetNeighbours()
+			for N in ListOfNeighbours:
+				ThePiece = N.GetPieceInTile()
+				if ThePiece is not None:
+					if self._Player1Turn and ThePiece.GetPieceType(
+					) == "B" or not self._Player1Turn and ThePiece.GetPieceType() == "b":
+						OwnBaronIsNeighbour = True
+						break
+			if not OwnBaronIsNeighbour:
+				return -1
+			NewPiece = Piece(self._Player1Turn)
+			self._Pieces.append(NewPiece)
+			self._Tiles[TileToUse].SetPiece(NewPiece)
+			return 3
+		print("Spawn attempted to exceed max pieces.")
+		return -1
 
 	def __ExecuteUpgradeCommand(self, Items, LumberAvailable):
 		TileToUse = int(Items[2])
@@ -530,13 +533,14 @@ def SetUpDefaultGame():
 	Player2 = Player(Player2Name, 1, 10, 10, 5)
 	Grid.SetUpGridTerrain(T)
 	Grid.AddPiece(True, "Baron", 0)
-	Grid.AddPiece(True, "Serf", 7)
-	Grid.AddPiece(True, "Serf", 13)
+	Grid.AddPiece(True, "Serf", 8)
+	Grid.AddPiece(True, "Serf", 24)
+	Grid.AddPiece(True, "Serf", 5)
+	Grid.AddPiece(True, "Serf", 2)
+	Grid.AddPiece(True, "Serf", 3)
 	Grid.AddPiece(False, "Baron", 31)
-	Grid.AddPiece(False, "Serf", 15)
 	Grid.AddPiece(False, "Serf", 23)
 	return Player1, Player2, Grid
-
 
 def CheckMoveCommandFormat(Items):
 	if len(Items) == 3:
