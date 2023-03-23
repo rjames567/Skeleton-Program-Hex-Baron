@@ -528,16 +528,11 @@ def SetUpDefaultGame():
 	]
 	GridSize = 8
 	Grid = HexGrid(GridSize)
-	Player1Name, Player2Name = input("Enter Player 1's name: "), input("Enter Player 2's name: ")
-	Player1 = Player(Player1Name, 0, 10, 10, 5)
-	Player2 = Player(Player2Name, 1, 10, 10, 5)
+	Player1 = Player("Player One", 0, 2, 10, 5)
+	Player2 = Player("Player Two", 1, 10, 10, 5)
 	Grid.SetUpGridTerrain(T)
 	Grid.AddPiece(True, "Baron", 0)
 	Grid.AddPiece(True, "Serf", 8)
-	Grid.AddPiece(True, "Serf", 24)
-	Grid.AddPiece(True, "Serf", 5)
-	Grid.AddPiece(True, "Serf", 2)
-	Grid.AddPiece(True, "Serf", 3)
 	Grid.AddPiece(False, "Baron", 31)
 	Grid.AddPiece(False, "Serf", 23)
 	return Player1, Player2, Grid
@@ -602,6 +597,7 @@ def PlayGame(Player1, Player2, Grid):
 			      " state your three commands, pressing enter after each one.")
 		for Count in range(1, 4):
 			Commands.append(input("Enter command: ").lower())
+		CorrectMoveCommandCount = 0
 		for C in Commands:
 			Items = C.split() # Leaving empty removes any empty list items
 			ValidCommand = CheckCommandIsValid(Items)
@@ -612,6 +608,10 @@ def PlayGame(Player1, Player2, Grid):
 				LumberChange = 0
 				SupplyChange = 0
 				if Player1Turn:
+					if Items[0] == "move":
+						CorrectMoveCommandCount += 1
+					if CorrectMoveCommandCount == 3:
+						Player1.UpdateFuel(1)
 					SummaryOfResult, FuelChange, LumberChange, SupplyChange = Grid.ExecuteCommand(
 					 Items, Player1.GetFuel(), Player1.GetLumber(),
 					 Player1.GetPiecesInSupply())
@@ -620,6 +620,10 @@ def PlayGame(Player1, Player2, Grid):
 					if SupplyChange == 1:
 						Player1.RemoveTileFromSupply()
 				else:
+					if Items[0] == "move":
+						CorrectMoveCommandCount += 1
+					if CorrectMoveCommandCount == 3:
+						Player2.UpdateFuel(1)
 					SummaryOfResult, FuelChange, LumberChange, SupplyChange = Grid.ExecuteCommand(
 					 Items, Player2.GetFuel(), Player2.GetLumber(),
 					 Player2.GetPiecesInSupply())
