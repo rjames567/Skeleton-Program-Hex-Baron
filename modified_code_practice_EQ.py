@@ -322,7 +322,7 @@ class HexGrid:
 				if FromTile.GetDistanceToTileT(ToTile) == 1:
 					FromTile.AddToNeighbours(ToTile)
 
-	def DestroyPiecesAndCountVPs(self):
+	def DestroyPiecesAndCountVPs(self, Player1, Player2):
 		BaronDestroyed = False
 		Player1VPs = 0
 		Player2VPs = 0
@@ -342,8 +342,10 @@ class HexGrid:
 					ListOfTilesContainingDestroyedPieces.append(T)
 					if ThePiece.GetBelongsToPlayer1():
 						Player2VPs += ThePiece.GetVPs()
+						Player2.AddPieceToSupply()
 					else:
 						Player1VPs += ThePiece.GetVPs()
+						Player1.AddPieceToSupply()
 		for T in ListOfTilesContainingDestroyedPieces:
 			T.SetPiece(None)
 		return BaronDestroyed, Player1VPs, Player2VPs
@@ -458,6 +460,9 @@ class Player:
 	def RemoveTileFromSupply(self):
 		self._PiecesInSupply -= 1
 
+	def AddPieceToSupply(self):
+		self._PiecesInSupply += 1
+
 
 def Main():
 	FileLoaded = True
@@ -525,8 +530,10 @@ def SetUpDefaultGame():
 	Player2 = Player(Player2Name, 1, 10, 10, 5)
 	Grid.SetUpGridTerrain(T)
 	Grid.AddPiece(True, "Baron", 0)
-	Grid.AddPiece(True, "Serf", 8)
+	Grid.AddPiece(True, "Serf", 7)
+	Grid.AddPiece(True, "Serf", 13)
 	Grid.AddPiece(False, "Baron", 31)
+	Grid.AddPiece(False, "Serf", 15)
 	Grid.AddPiece(False, "Serf", 23)
 	return Player1, Player2, Grid
 
@@ -622,12 +629,10 @@ def PlayGame(Player1, Player2, Grid):
 		Player1VPsGained = 0
 		Player2VPsGained = 0
 		if GameOver:
-			GameOver, Player1VPsGained, Player2VPsGained = Grid.DestroyPiecesAndCountVPs(
-			)
+			GameOver, Player1VPsGained, Player2VPsGained = Grid.DestroyPiecesAndCountVPs(Player1, Player2)
 			GameOver = True
 		else:
-			GameOver, Player1VPsGained, Player2VPsGained = Grid.DestroyPiecesAndCountVPs(
-			)
+			GameOver, Player1VPsGained, Player2VPsGained = Grid.DestroyPiecesAndCountVPs(Player1, Player2)
 		Player1.AddToVPs(Player1VPsGained)
 		Player2.AddToVPs(Player2VPsGained)
 		print("Player One current state - " + Player1.GetStateString())
