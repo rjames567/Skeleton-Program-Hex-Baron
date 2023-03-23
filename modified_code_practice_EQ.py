@@ -53,6 +53,7 @@ class BaronPiece(Piece):
 		super(BaronPiece, self).__init__(Player1)
 		self._PieceType = "B"
 		self._VPValue = 10
+		self._ConnectionsToDestroy = 3
 
 	def CheckMoveIsValid(self, DistanceBetweenTiles, StartTerrain, EndTerrain):
 		if DistanceBetweenTiles == 1:
@@ -528,13 +529,17 @@ def SetUpDefaultGame():
 	]
 	GridSize = 8
 	Grid = HexGrid(GridSize)
-	Player1 = Player("Player One", 0, 2, 10, 5)
-	Player2 = Player("Player Two", 1, 10, 10, 5)
+	Player1Name, Player2Name = input("Enter Player 1's name: "), input("Enter Player 2's name: ")
+	Player1 = Player(Player1Name, 0, 10, 10, 5)
+	Player2 = Player(Player2Name, 1, 10, 10, 5)
 	Grid.SetUpGridTerrain(T)
 	Grid.AddPiece(True, "Baron", 0)
-	Grid.AddPiece(True, "Serf", 8)
-	Grid.AddPiece(False, "Baron", 31)
-	Grid.AddPiece(False, "Serf", 23)
+	Grid.AddPiece(True, "Serf", 15)
+	Grid.AddPiece(True, "Serf", 27)
+	Grid.AddPiece(True, "Serf", 25)
+	Grid.AddPiece(False, "Baron", 19)
+	Grid.AddPiece(False, "Serf", 8)
+	Grid.AddPiece(False, "Serf", 2)
 	return Player1, Player2, Grid
 
 def CheckMoveCommandFormat(Items):
