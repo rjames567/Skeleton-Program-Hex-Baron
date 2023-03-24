@@ -630,7 +630,7 @@ def SetUpDefaultGame():
 	GridSize = 8
 	Grid = HexGrid(GridSize)
 	Player1 = Player("Player One", 0, 10, 10, 5)
-	Player2 = Player("Player Two", 1, 10, 10, 5)
+	Player2 = Player("Player Two", 0, 10, 10, 5)
 	Grid.SetUpGridTerrain(T)
 	Grid.AddPiece(True, "Baron", 0)
 	Grid.AddPiece(True, "Serf", 8)
